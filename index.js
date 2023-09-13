@@ -8,7 +8,7 @@ const util = require('minecraft-server-util');
 const client = new Client();
 
 // Define the channel ID you want to monitor
-const channelIdToMonitor = 'YOUR_CHANNEL_ID_HERE'; // Replace with your channel's ID
+const channelIdToMonitor = '1151560216324874330'; // Replace with your channel's ID
 
 // Define the emoji you want to react with
 const reactionEmoji = '👍'; // Replace with your desired emoji
