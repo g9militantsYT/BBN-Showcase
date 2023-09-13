@@ -1,18 +1,10 @@
-// Import required libraries
 require('dotenv').config();
 const { Client, MessageEmbed } = require('discord.js');
 const dns = require('dns');
 const util = require('minecraft-server-util');
 
-// Create a new Discord client
 const client = new Client();
-
-// Define the channel ID you want to monitor
-const channelIdToMonitor = '1151560216324874330'; // Replace with your channel's ID
-
-// Define the emoji you want to react with
-const reactionEmoji = '👍'; // Replace with your desired emoji
-
+const channelName = 'commands'; // Replace with the name of the channel you want to monitor
 const targetDomains = ['hel1.bbn.one', 'fsn1.bbn.one', 'sgp1.bbn.one', 'mum1.bbn.one'];
 
 client.on('ready', () => {
@@ -20,18 +12,8 @@ client.on('ready', () => {
 });
 
 client.on('message', async (message) => {
-  if (message.channel.id === channelIdToMonitor) { // Check if the message is in the specified channel
-    // React to the message with the specified emoji
-    try {
-      await message.react(reactionEmoji);
-      console.log(`Reacted with ${reactionEmoji} to a message in the monitored channel.`);
-    } catch (error) {
-      console.error('Error reacting to message:', error);
-    }
-  }
-
   if (message.author.bot) return; // Ignore messages from bots
-  if (message.channel.name === commands) {
+  if (message.channel.name === channelName) {
     // Timeout the user for 1 minute
     if (!message.member.roles.cache.some(role => role.name === 'Timeout')) {
       try {
