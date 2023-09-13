@@ -31,7 +31,7 @@ client.on('message', async (message) => {
   }
 
   if (message.author.bot) return; // Ignore messages from bots
-  if (message.channel.name === channelName) {
+  if (message.channel.name === commands) {
     // Timeout the user for 1 minute
     if (!message.member.roles.cache.some(role => role.name === 'Timeout')) {
       try {
