@@ -134,8 +134,9 @@ client.on('message', async (message) => {
                 const serverStatus = await util.status(serverIp, { port: serverPort });
 
                 // Check if the serverStatus object contains valid data
-                if (serverStatus && serverStatus.description && serverStatus.players) {
-                  const embed = createMinecraftEmbed(serverIp, serverPort, serverStatus);
+                if (serverStatus) {
+                  const description = serverStatus.description ? serverStatus.description.text : 'No MOTD available';
+                  const embed = createMinecraftEmbed(serverIp, serverPort, serverStatus, description);
                   message.reply({ embeds: [embed] });
                 } else {
                   message.reply(`Oops! An error occurred while querying the Minecraft server.`);
@@ -202,13 +203,13 @@ async function resolveDomainToIp(domain) {
 }
 
 // Function to create a Discord embed for Minecraft server info
-function createMinecraftEmbed(serverIp, serverPort, serverStatus) {
+function createMinecraftEmbed(serverIp, serverPort, serverStatus, description) {
   const embed = new MessageEmbed()
     .setTitle(`Minecraft Server Info`)
     .setColor('#0099ff')
     .addField('Server IP', `${serverIp}:${serverPort}`)
     .addField('Players Online', `${serverStatus.onlinePlayers}/${serverStatus.maxPlayers}`)
-    .addField('MOTD', serverStatus.description.text)
+    .addField('MOTD', description)
     .setTimestamp();
   return embed;
 }
