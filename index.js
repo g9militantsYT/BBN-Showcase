@@ -1,31 +1,20 @@
-// Import required modules
 require('dotenv').config();
 const { Client, MessageEmbed } = require('discord.js');
 const dns = require('dns');
 const util = require('minecraft-server-util');
 
-// Create a new Discord client
 const client = new Client();
-
-// Define the name of the channel you want to monitor
-const channelName = 'commands';
-
-// Define the target domains to check against
+const channelName = 'commands'; // Replace with the name of the channel you want to monitor
 const targetDomains = ['hel1.bbn.one', 'fsn1.bbn.one', 'sgp1.bbn.one', 'mum1.bbn.one'];
 
-// Event handler for when the bot is ready
 client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}`);
 });
 
-// Event handler for incoming messages
 client.on('message', async (message) => {
-  // Ignore messages from bots
-  if (message.author.bot) return;
-
-  // Check if the message is in the designated channel
+  if (message.author.bot) return; // Ignore messages from bots
   if (message.channel.name === channelName) {
-    // Timeout the user for 1 minute if they don't have the 'Timeout' role
+    // Timeout the user for 1 minute
     if (!message.member.roles.cache.some(role => role.name === 'Timeout')) {
       try {
         const timeoutRole = message.guild.roles.cache.find(role => role.name === 'Timeout');
@@ -43,7 +32,7 @@ client.on('message', async (message) => {
     // Check if the message contains a domain name and port number
     const domainPattern = /(?:https?:\/\/)?(?:www\.)?([a-zA-Z0-9.-]+(?:\.[a-zA-Z]{2,}))(?::([0-9]+))?/;
     const match = domainPattern.exec(message.content);
-
+    
     if (match) {
       const userDomain = match[1];
       const userPort = match[2] ? parseInt(match[2]) : null;
@@ -52,7 +41,7 @@ client.on('message', async (message) => {
         try {
           const reply = await message.reply('Please provide a port number after the domain name.');
           console.log(`Deleted message from ${message.author.tag} due to missing port number.`);
-
+          
           setTimeout(async () => {
             try {
               await reply.delete();
@@ -61,7 +50,7 @@ client.on('message', async (message) => {
               console.error('Error deleting reply:', error);
             }
           }, 10000); // Auto delete reply after 10 seconds
-
+          
           try {
             await message.delete();
             console.log(`Deleted message from ${message.author.tag} due to missing port number.`);
@@ -110,7 +99,7 @@ client.on('message', async (message) => {
                 await countdownMessage.edit(`Countdown: ${Math.ceil(remainingTime / 1000)} seconds left`);
               }
             }, 1000);
-
+            
             setTimeout(async () => {
               clearInterval(interval);
               try {
@@ -125,7 +114,7 @@ client.on('message', async (message) => {
             // Check if the user's provided domain is in the format of a Minecraft server IP:Port
             const minecraftPattern = /([a-zA-Z0-9.-]+):(\d+)/;
             const minecraftMatch = minecraftPattern.exec(userDomain);
-
+            
             if (minecraftMatch) {
               const serverIp = minecraftMatch[1];
               const serverPort = parseInt(minecraftMatch[2]);
@@ -133,14 +122,8 @@ client.on('message', async (message) => {
               try {
                 const serverStatus = await util.status(serverIp, { port: serverPort });
 
-                // Check if the serverStatus object contains valid data
-                if (serverStatus) {
-                  const description = serverStatus.description ? serverStatus.description.text : 'No MOTD available';
-                  const embed = createMinecraftEmbed(serverIp, serverPort, serverStatus, description);
-                  message.reply({ embeds: [embed] });
-                } else {
-                  message.reply(`Oops! An error occurred while querying the Minecraft server.`);
-                }
+                const embed = createMinecraftEmbed(serverIp, serverPort, serverStatus);
+                message.reply({ embeds: [embed] });
               } catch (error) {
                 console.error('Error querying Minecraft server:', error);
                 message.reply(`Oops! An error occurred while querying the Minecraft server.`);
@@ -174,7 +157,7 @@ client.on('message', async (message) => {
           await countdownMessage.edit(`Countdown: ${Math.ceil(remainingTime / 1000)} seconds left`);
         }
       }, 1000);
-
+      
       setTimeout(async () => {
         clearInterval(interval);
         try {
@@ -189,7 +172,6 @@ client.on('message', async (message) => {
   }
 });
 
-// Function to resolve a domain name to an IP address
 async function resolveDomainToIp(domain) {
   return new Promise((resolve, reject) => {
     dns.resolve(domain, (err, addresses) => {
@@ -202,17 +184,15 @@ async function resolveDomainToIp(domain) {
   });
 }
 
-// Function to create a Discord embed for Minecraft server info
-function createMinecraftEmbed(serverIp, serverPort, serverStatus, description) {
+function createMinecraftEmbed(serverIp, serverPort, serverStatus) {
   const embed = new MessageEmbed()
     .setTitle(`Minecraft Server Info`)
     .setColor('#0099ff')
     .addField('Server IP', `${serverIp}:${serverPort}`)
     .addField('Players Online', `${serverStatus.onlinePlayers}/${serverStatus.maxPlayers}`)
-    .addField('MOTD', description)
+    .addField('MOTD', serverStatus.description.text)
     .setTimestamp();
   return embed;
 }
 
-// Log in to Discord using the provided bot token
 client.login(process.env.BOT_TOKEN);
