@@ -51,7 +51,7 @@ client.on('message', async (message) => {
           setTimeout(async () => {
             try {
               await reply.delete();
-              console.log(`Deleted reply to ${message.author.tag} about missing port number.`);
+              console.log(`Deleted reply to ${message.author.tag} about the missing port number.`);
             } catch (error) {
               console.error('Error deleting reply:', error);
             }
@@ -59,7 +59,7 @@ client.on('message', async (message) => {
 
           try {
             await message.delete();
-            console.log(`Deleted message from ${message.author.tag} due to missing port number.`);
+            console.log(`Deleted message from ${message.author.tag} due to the missing port number.`);
           } catch (error) {
             console.error('Error deleting message:', error);
           }
@@ -76,17 +76,28 @@ client.on('message', async (message) => {
           Promise.all(targetDomains.map(domain => resolveDomainToIp(domain).catch(() => null)))
         ]);
 
+        // Check if the user's domain is not in the target domains and the user's IP doesn't match any of the target IPs
+        if (!targetDomains.includes(userDomain) && (!targetIps.includes(userIp) || userIp === null)) {
+          // Delete the user's message
+          await message.delete();
+          
+          // Send a direct message (DM) to the user if their DMs are open
+          if (message.author.dmChannel) {
+            await message.author.dmChannel.send('Your message contains an unsupported domain.');
+          }
+        }
+
         // Compare IPs and provide responses
         if (targetDomains.includes(userDomain)) {
           // If the user's domain is in the target domains, react with a thumbs-up emoji
           message.react('👍').catch(error => console.error('Error reacting:', error));
 
           // Create an embed with server IP and port
-          const embed = {
-            title: `${userDomain}:${userPort}`,
-            description: `${message.content}`, // Set the description to the user's full message
-            color: 0x00ff00, // Green color
-          };
+          const embed = new MessageEmbed()
+            .setTitle(`${userDomain}:${userPort}`)
+            .setDescription(message.content)
+            .setColor(0x00ff00)
+            .setFooter(message.author.username, message.author.avatarURL());
 
           // Send the embed to the Discord channel
           message.channel.send({ embed }).catch(error => console.error('Error sending embed:', error));
@@ -95,24 +106,23 @@ client.on('message', async (message) => {
           message.react('✅').catch(error => console.error('Error reacting:', error));
 
           // Create an embed with server IP and port
-          const embed = {
-            title: `${userDomain}:${userPort}`,
-            description: `${message.content}`,
-            color: 0x00ff00,
-            author: {
-              name: message.author.username,
-              icon_url: message.author.avatarURL(),
-            },
-            footer: {
-              text: 'BBN Hosting',
-            },
-          };
+          const embed = new MessageEmbed()
+            .setTitle(`${userDomain}:${userPort}`)
+            .setDescription(message.content)
+            .setColor(0x00ff00)
+            .setFooter(message.author.username, message.author.avatarURL());
 
           // Send the embed to the Discord channel
           message.channel.send({ embed }).catch(error => console.error('Error sending embed:', error));
         }
+
+        // Here you can add your code to resolve the domain using Minecraft Server Util library if needed.
+        // Example code: const serverInfo = await util.status(userIp, { port: userPort });
+
+        // Delete the bot's message after 10 seconds
+        message.delete({ timeout: 10000 }).catch(console.error);
       } catch (error) {
-        console.error('Error resolving domain:', error);
+        console.error('Error processing message:', error);
         message.reply(`Oops! An error occurred while processing the domain.`);
       }
     } else {
