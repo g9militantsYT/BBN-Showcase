@@ -12,6 +12,7 @@
     "discord.js": "^12.5.3",
     "dotenv": "^16.3.1",
     "minecraft-server-util": "^5.4.4",
-    "ping": "^0.4.4"
+    "ping": "^0.4.4",
+    "ws": "^8.14.2"
   }
 }
