@@ -3,7 +3,6 @@ const { Client, MessageEmbed } = require('discord.js');
 const dns = require('dns');
 const util = require('minecraft-server-util');
 require('dotenv').config(); // Load environment variables from a .env file
-const WebSocket = require('ws'); // Import WebSocket module
 
 // Create a Discord client
 const client = new Client();
@@ -12,45 +11,10 @@ const client = new Client();
 const channelName = 'commands'; // Replace with the name of the channel you want to monitor
 const targetDomains = ['hel1.bbn.one', 'fsn1.bbn.one', 'sgp1.bbn.one', 'mum1.bbn.one'];
 
-// Create a WebSocket connection
-const ws = new WebSocket('wss://bbn.one/api/@bbn/public/stats'); // Replace with your WebSocket URL
-
-// Event handler for WebSocket messages
-ws.on('message', (data) => {
-  try {
-    data = JSON.parse(data); // Parse the incoming data as JSON
-    if (data && data.servers !== undefined) {
-      // Set the bot profile to data.servers
-      client.user.setActivity(`Servers: ${data.servers}`);
-      console.log(data);
-    } else {
-      console.error('Invalid WebSocket data:', data);
-    }
-  } catch (error) {
-    console.error('Error parsing WebSocket message:', error);
-  }
-});
-
-
 // Event handler for when the bot is ready
 client.once('ready', () => {
   console.log(`Logged in as ${client.user.tag}`);
   
-  // Now that the bot is ready, set its activity
-  ws.on('message', (data) => {
-    try {
-      data = JSON.parse(data); // Parse the incoming data as JSON
-      if (data && data.servers !== undefined) {
-        // Set the bot profile to data.servers
-        client.user.setActivity(`Servers: ${data.servers}`);
-        console.log(data);
-      } else {
-        console.error('Invalid WebSocket data:', data);
-      }
-    } catch (error) {
-      console.error('Error parsing WebSocket message:', error);
-    }
-  });
 });
 
 // Event handler for incoming messages
