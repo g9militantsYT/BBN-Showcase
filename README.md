@@ -1,3 +1,4 @@
 <<<<<<< HEAD
-# Minecraft-Server-Showcase-Bot-for-Minecraft-Hosts
-This GitHub repository provides the source code for a Minecraft server showcase bot, allowing users to easily create a bot that showcases Minecraft servers.
+# This repo has been discontinued
+
+[![Visit the new repo](https://img.shields.io/badge/Visit%20the%20new%20repo-Here-blue)](https://github.com/g9militantsYT/Minecraft-Server-Showcase-Bot-for-Minecraft-Hosts)
